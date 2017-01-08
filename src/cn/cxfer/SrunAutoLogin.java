@@ -11,16 +11,16 @@ import java.net.URL;
  */
 public class SrunAutoLogin {
     public static void main(String[] args) {
-        String wxxyIP = "211.70.160.3";
+        String authIP = "211.70.160.3";//认证服务器的ip
         String account = "net";
         String password = "net";
         String netPost = String.format("action=login&username=%s&password=%s&ac_id=1&user_ip=&nas_ip=&user_mac=&save_me=0&ajax=1", account, password);
         String netLength = "90";
         try {
             if (needLogin())
-                doLogin(netPost, netLength, wxxyIP);
+                doLogin(netPost, netLength, authIP);
             else
-                System.out.println("已登录，无需重复登录");
+                System.out.println("能够访问外网，无需重复登陆");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -28,19 +28,18 @@ public class SrunAutoLogin {
     private static boolean needLogin() throws IOException {
         boolean flag = false;
         StringBuilder buffer = new StringBuilder();
-        String url = "http://qq.com/";
-        //发送get请求
+        String url = "http://qq.com/";//需要一个不会返回200状态码的链接
         URL serverUrl = new URL(url);
-        HttpURLConnection conn = (HttpURLConnection) serverUrl.openConnection();
-        conn.setRequestMethod("GET");
+        HttpURLConnection connection = (HttpURLConnection) serverUrl.openConnection();
+        //发送get请求
+        connection.setRequestMethod("GET");
         //必须设置false，否则会自动redirect到重定向后的地址
-        conn.setInstanceFollowRedirects(false);
-        conn.addRequestProperty("Accept-Charset", "UTF-8;");
-        conn.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 5.1; zh-CN; rv:1.9.2.8) Firefox/3.6.8");
-        conn.addRequestProperty("Referer", "http://qq.com/");
-        conn.connect();
+        connection.setInstanceFollowRedirects(false);
+        connection.addRequestProperty("Accept-Charset", "UTF-8;");
+        connection.addRequestProperty("Referer", "http://qq.com/");
+        connection.connect();
         //未登录情况下所有站点均返回200状态码，深澜直接挟持http连接插入js跳转代码的
-        if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+        if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
             flag = true;//需要登录
         }
         return flag;
